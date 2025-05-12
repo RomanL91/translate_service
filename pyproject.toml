@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "translate-service"
+version = "0.1.0"
+description = ""
+authors = ["RomanL91 <dev_roman91@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
+googletrans = "^4.0.2"
+aio-pika = "^9.5.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
