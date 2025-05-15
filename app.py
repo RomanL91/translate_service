@@ -1,20 +1,39 @@
 import asyncio
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 
-from services.rabbitmq_repository import RabbitMQRepository
+from fastapi import FastAPI, HTTPException
+
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 from services.translator_service import TranslatorService
 from services.translation_service import TranslationService
+from services.rabbitmq_repository import RabbitMQRepository
+
 
 # ------------------------------------------------------------------------------------
 # Конфигурация
 # ------------------------------------------------------------------------------------
-RABBITMQ_URL = "amqp://guest:guest@185.100.67.246:5672/"
+class AppSettings(BaseSettings):
+
+    host: str
+    port: int
+    reload: bool
+
+    rabbitmq_url: str
+
+    translation_queue: str
+    response_translation_queue: str
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+
+settings = AppSettings()
+
 
 # ------------------------------------------------------------------------------------
 # Инициализация
 # ------------------------------------------------------------------------------------
-rabbitmq_repo = RabbitMQRepository(RABBITMQ_URL)
+rabbitmq_repo = RabbitMQRepository(settings.rabbitmq_url)
 translator_service = TranslatorService()
 translation_service = TranslationService(rabbitmq_repo, translator_service)
 
@@ -23,8 +42,10 @@ translation_service = TranslationService(rabbitmq_repo, translator_service)
 # Логика жизненного цикла приложения
 # ------------------------------------------------------------------------------------
 async def app_lifespan(app: FastAPI):
-    print("✅ Приложение запущено")
+    # Инициализация очередей
+    await rabbitmq_repo.declare_queue(translation_service.response_queue)
     consume_task = asyncio.create_task(translation_service.start_consumer())
+    print("✅ Приложение запущено")
 
     yield
 
