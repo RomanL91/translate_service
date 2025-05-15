@@ -3,32 +3,12 @@ import asyncio
 from fastapi import FastAPI, HTTPException
 
 from pydantic import BaseModel
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from services.translator_service import TranslatorService
 from services.translation_service import TranslationService
 from services.rabbitmq_repository import RabbitMQRepository
 
-
-# ------------------------------------------------------------------------------------
-# Конфигурация
-# ------------------------------------------------------------------------------------
-class AppSettings(BaseSettings):
-
-    host: str
-    port: int
-    reload: bool
-
-    rabbitmq_url: str
-
-    translation_queue: str
-    response_translation_queue: str
-
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
-
-settings = AppSettings()
-
+from settings import settings
 
 # ------------------------------------------------------------------------------------
 # Инициализация

@@ -1,7 +1,7 @@
 from services.rabbitmq_repository import RabbitMQRepository
 from services.translator_service import TranslatorService
 
-from app import settings
+from settings import settings
 
 
 class TranslationService:
