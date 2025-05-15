@@ -28,8 +28,15 @@ class RabbitMQRepository:
             self.channel = None
             print("✅ RabbitMQ подключение закрыто.")
 
+    async def declare_queue(self, queue_name: str):
+        """Создает очередь, если её не существует"""
+        channel = await self.connect()
+        await channel.declare_queue(queue_name, durable=True)
+        print(f"✅ Очередь '{queue_name}' инициализирована.")
+
     async def publish_message(self, queue_name: str, message: Any):
         """Отправляет сообщение в очередь"""
+        await self.declare_queue(queue_name)
         channel = await self.connect()
         await channel.default_exchange.publish(
             aio_pika.Message(body=json.dumps(message).encode()),
